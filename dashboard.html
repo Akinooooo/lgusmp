@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMP Portal - Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #F6F0D7;
+      --cream-dark: #ede7c8;
+      --sage-light: #C5D89D;
+      --sage: #9CAB84;
+      --olive: #89986D;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--olive);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes softPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    @keyframes staggerIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(60px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideOutLeft {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(-60px); }
+    }
+    @keyframes slideOutRight {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(60px); }
+    }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-60px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pageEnter {
+      from { opacity: 0; transform: translateX(60px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .blob-1 { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; animation: softPulse 6s ease-in-out infinite; }
+    .blob-2 { border-radius: 40% 60% 70% 30% / 40% 70% 30% 60%; animation: softPulse 8s ease-in-out infinite; }
+
+    .dot-pattern {
+      position: fixed; inset: 0;
+      opacity: 0.025; pointer-events: none;
+      background-image: radial-gradient(circle, #89986D 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    /* ===== GLASS ===== */
+    .glass {
+      background: rgba(246, 240, 215, 0.65);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    /* ===== BUTTONS ===== */
+    .genz-btn {
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      border: none;
+    }
+    .genz-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -8px rgba(137, 152, 109, 0.3);
+    }
+    .genz-btn:active {
+      transform: translateY(0px) scale(0.98);
+    }
+
+    /* ===== CARDS ===== */
+    .genz-card {
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      border: none;
+      text-align: left;
+    }
+    .genz-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 20px 40px -12px rgba(137, 152, 109, 0.15), 0 8px 16px -8px rgba(137, 152, 109, 0.1);
+    }
+
+    /* ===== HEADER ===== */
+    .app-header {
+      position: sticky; top: 0; z-index: 10;
+      border-bottom: 1px solid rgba(197, 216, 157, 0.2);
+    }
+    .header-inner {
+      max-width: 1152px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px;
+    }
+
+    /* ===== GRID ===== */
+    .dashboard-grid {
+      display: grid; gap: 16px;
+      grid-template-columns: repeat(1, 1fr);
+    }
+    @media (min-width: 640px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 768px) { .dashboard-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 1024px) { .dashboard-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    /* ===== MISC ===== */
+    .pill-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      border-radius: 999px; padding: 8px 16px;
+      background: rgba(197, 216, 157, 0.2);
+      border: 1px solid rgba(197, 216, 157, 0.2);
+      font-size: 12px; font-weight: 500; color: var(--olive);
+    }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border-radius: 12px; background: var(--cream);
+      padding: 10px 16px; font-size: 14px; font-weight: 500;
+      color: var(--olive);
+      border: 1px solid rgba(197, 216, 157, 0.3);
+    }
+
+    .shimmer-overlay {
+      position: absolute; inset: 0; border-radius: 16px;
+      background: linear-gradient(90deg, transparent 0%, rgba(197, 216, 157, 0.15) 50%, transparent 100%);
+      background-size: 200% 100%;
+      opacity: 0; transition: opacity 0.5s;
+    }
+    .genz-card:hover .shimmer-overlay {
+      opacity: 1;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    .card-gradient {
+      position: absolute; inset: 0; border-radius: 16px;
+      opacity: 0; transition: opacity 0.5s;
+    }
+    .genz-card:hover .card-gradient { opacity: 1; }
+
+    .index-badge {
+      display: flex; align-items: center; justify-content: center;
+      height: 28px; width: 28px; border-radius: 8px;
+      background: rgba(197, 216, 157, 0.2);
+      font-size: 12px; font-family: 'Space Grotesk', monospace; font-weight: 700;
+      color: var(--olive);
+      transition: all 0.4s;
+    }
+    .genz-card:hover .index-badge {
+      background: var(--olive); color: var(--cream);
+    }
+
+    .arrow-circle {
+      display: flex; align-items: center; justify-content: center;
+      height: 28px; width: 28px; border-radius: 999px;
+      background: rgba(197, 216, 157, 0.2);
+      transition: all 0.4s;
+    }
+    .genz-card:hover .arrow-circle { background: var(--olive); }
+    .arrow-circle svg { transition: color 0.4s; }
+    .genz-card:hover .arrow-circle svg { color: var(--cream); }
+
+    .hidden { display: none !important; }
+
+    .page-exit-forward { animation: slideOutLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+    .page-exit-backward { animation: slideOutRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+    .page-enter { animation: pageEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+    @media (max-width: 639px) { .hide-mobile { display: none; } }
+  </style>
+</head>
+<body>
+  <div id="dashboard-page" class="page-enter">
+    <div style="min-height:100vh; position:relative; background:linear-gradient(180deg, #F6F0D7 0%, #ede7c8 100%);">
+
+      <!-- Background -->
+      <div style="position:fixed; inset:0; overflow:hidden; pointer-events:none;">
+        <div class="blob-1" style="position:absolute; top:-160px; right:-160px; width:600px; height:600px; background:#C5D89D; opacity:0.15;"></div>
+        <div class="blob-2" style="position:absolute; bottom:0; left:-128px; width:384px; height:384px; background:#9CAB84; opacity:0.1;"></div>
+      </div>
+      <div class="dot-pattern"></div>
+
+      <!-- Header -->
+      <header class="app-header glass">
+        <div class="header-inner">
+          <div style="display:flex; align-items:center; gap:16px;">
+            <button onclick="goBack()" class="back-btn genz-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+              Back
+            </button>
+            <div class="hide-mobile">
+              <h1 style="font-size:20px; font-weight:700; letter-spacing:-0.3px; color:#89986D;">Dashboard</h1>
+              <p style="font-size:12px; color:#9CAB84;">Select a section to view profiles</p>
+            </div>
+          </div>
+          <div class="pill-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg>
+            13 Sections
+          </div>
+        </div>
+      </header>
+
+      <!-- Cards -->
+      <div style="max-width:1152px; margin:0 auto; padding:40px 24px;">
+        <div id="dashboard-grid" class="dashboard-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const cardLabels = [
+      "Office 1", "Office 2", "Office 3",
+      "Office 4", "Office 5", "Office 6",
+      "Office 7", "Office 8", "Office 9",
+      "Office 10", "Office 11", "Office 12",
+      "Office 13"
+    ];
+
+    function buildDashboard() {
+      const grid = document.getElementById("dashboard-grid");
+      grid.innerHTML = "";
+      cardLabels.forEach((label, i) => {
+        const card = document.createElement("button");
+        card.className = "genz-card";
+        card.style.cssText = "position:relative; display:flex; flex-direction:column; height:176px; border-radius:16px; background:rgba(246, 240, 215, 0.7); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); padding:24px; text-align:left; border:1px solid rgba(197, 216, 157, 0.2); overflow:hidden; opacity:0; animation: staggerIn 0.5s " + (0.06 * i + 0.15) + "s cubic-bezier(0.22, 1, 0.36, 1) forwards;";
+        card.onclick = () => openProfiles(i);
+        card.innerHTML = `
+          <div class="card-gradient" style="background:linear-gradient(135deg, rgba(197, 216, 157, 0.3), rgba(197, 216, 157, 0.05));"></div>
+          <div class="shimmer-overlay"></div>
+          <div style="position:relative; z-index:1; display:flex; flex-direction:column; height:100%;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:auto;">
+              <span class="index-badge">${String(i + 1).padStart(2, "0")}</span>
+            </div>
+            <div style="margin-top:auto;">
+              <span style="font-size:18px; font-weight:700; letter-spacing:-0.3px; color:#89986D; text-wrap:balance;">${label}</span>
+            </div>
+            <div style="margin-top:12px; display:flex; align-items:center; gap:8px;">
+              <div style="height:1px; flex:1; background:rgba(197, 216, 157, 0.3); transition:background 0.4s;"></div>
+              <div class="arrow-circle">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#89986D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </div>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function openProfiles(cardIndex) {
+      sessionStorage.setItem("selectedCard", cardIndex);
+      document.getElementById("dashboard-page").classList.add("page-exit-forward");
+      setTimeout(() => {
+        window.location.href = "profiles.html";
+      }, 350);
+    }
+
+    function goBack() {
+      document.getElementById("dashboard-page").classList.add("page-exit-backward");
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 350);
+    }
+
+    buildDashboard();
+  </script>
+</body>
+</html>

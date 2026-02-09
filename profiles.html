@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMP Portal - Profiles</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #F6F0D7;
+      --cream-dark: #ede7c8;
+      --sage-light: #C5D89D;
+      --sage: #9CAB84;
+      --olive: #89986D;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--olive);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes softPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+    @keyframes staggerIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes slideOutRight {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(60px); }
+    }
+    @keyframes pageEnter {
+      from { opacity: 0; transform: translateX(60px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.88) translateY(30px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes modalOut {
+      from { opacity: 1; transform: scale(1) translateY(0); }
+      to { opacity: 0; transform: scale(0.88) translateY(30px); }
+    }
+    @keyframes backdropIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes backdropOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    .blob-1 { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; animation: softPulse 6s ease-in-out infinite; }
+    .blob-3 { border-radius: 30% 70% 40% 60% / 50% 40% 60% 50%; animation: softPulse 7s ease-in-out infinite; }
+
+    .dot-pattern {
+      position: fixed; inset: 0;
+      opacity: 0.025; pointer-events: none;
+      background-image: radial-gradient(circle, #89986D 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    .glass {
+      background: rgba(246, 240, 215, 0.65);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    /* ===== BUTTONS ===== */
+    .genz-btn {
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      border: none;
+    }
+    .genz-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -8px rgba(137, 152, 109, 0.3);
+    }
+    .genz-btn:active {
+      transform: translateY(0px) scale(0.98);
+    }
+
+    /* ===== CARDS ===== */
+    .genz-card {
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      border: none;
+      text-align: left;
+    }
+    .genz-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 20px 40px -12px rgba(137, 152, 109, 0.15), 0 8px 16px -8px rgba(137, 152, 109, 0.1);
+    }
+
+    /* ===== HEADER ===== */
+    .app-header {
+      position: sticky; top: 0; z-index: 10;
+      border-bottom: 1px solid rgba(197, 216, 157, 0.2);
+    }
+    .header-inner {
+      max-width: 1152px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px;
+    }
+
+    /* ===== GRID ===== */
+    .profiles-grid {
+      display: grid; gap: 16px;
+      grid-template-columns: repeat(2, 1fr);
+    }
+    @media (min-width: 640px) { .profiles-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 768px) { .profiles-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (min-width: 1024px) { .profiles-grid { grid-template-columns: repeat(5, 1fr); } }
+
+    /* ===== MISC ===== */
+    .pill-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      border-radius: 999px; padding: 8px 16px;
+      background: rgba(197, 216, 157, 0.2);
+      border: 1px solid rgba(197, 216, 157, 0.2);
+      font-size: 12px; font-weight: 500; color: var(--olive);
+    }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border-radius: 12px; background: var(--cream);
+      padding: 10px 16px; font-size: 14px; font-weight: 500;
+      color: var(--olive);
+      border: 1px solid rgba(197, 216, 157, 0.3);
+    }
+
+    /* ===== PROFILE CARDS ===== */
+    .profile-avatar {
+      display: flex; align-items: center; justify-content: center;
+      height: 80px; width: 80px; border-radius: 16px;
+      background: linear-gradient(135deg, rgba(197, 216, 157, 0.4), rgba(156, 171, 132, 0.2));
+      border: 2px solid rgba(197, 216, 157, 0.2);
+      transition: all 0.4s;
+    }
+    .genz-card:hover .profile-avatar {
+      border-color: rgba(137, 152, 109, 0.4);
+    }
+    .profile-avatar span {
+      font-size: 20px; font-weight: 700; color: var(--olive);
+      transition: transform 0.3s;
+    }
+    .genz-card:hover .profile-avatar span { transform: scale(1.1); }
+    .status-dot {
+      position: absolute; bottom: -2px; right: -2px;
+      height: 16px; width: 16px; border-radius: 999px;
+      background: var(--sage-light);
+      border: 2px solid var(--cream);
+      transition: background 0.3s;
+    }
+    .genz-card:hover .status-dot { background: var(--olive); }
+
+    .profile-hover-gradient {
+      position: absolute; inset: 0; border-radius: 16px;
+      background: linear-gradient(135deg, rgba(197, 216, 157, 0.3), transparent);
+      opacity: 0; transition: opacity 0.5s;
+    }
+    .genz-card:hover .profile-hover-gradient { opacity: 1; }
+
+    /* ===== MODAL ===== */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 40;
+      background: rgba(137, 152, 109, 0.2);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .modal-container {
+      position: fixed; inset: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .modal-card {
+      width: 100%; max-width: 420px;
+      border-radius: 24px;
+      background: var(--cream);
+      box-shadow: 0 25px 50px -12px rgba(137, 152, 109, 0.15);
+      border: 1px solid rgba(197, 216, 157, 0.3);
+      overflow: hidden;
+    }
+    .modal-header {
+      background: linear-gradient(135deg, var(--sage), var(--olive));
+      padding: 32px 32px 56px 32px;
+      position: relative;
+    }
+    .modal-avatar {
+      display: flex; justify-content: center; margin-top: -40px;
+    }
+    .modal-avatar-inner {
+      display: flex; align-items: center; justify-content: center;
+      height: 80px; width: 80px; border-radius: 16px;
+      background: linear-gradient(135deg, var(--sage-light), var(--sage));
+      font-size: 20px; font-weight: 700; color: var(--cream);
+      border: 4px solid var(--cream);
+      box-shadow: 0 10px 25px -5px rgba(137, 152, 109, 0.3);
+    }
+    .info-row {
+      display: flex; align-items: flex-start; gap: 12px;
+      border-radius: 12px; padding: 14px;
+      background: rgba(197, 216, 157, 0.1);
+      transition: background 0.3s ease;
+    }
+    .info-row:hover { background: rgba(197, 216, 157, 0.2); }
+    .info-icon {
+      margin-top: 2px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      height: 32px; width: 32px; border-radius: 8px;
+      background: rgba(197, 216, 157, 0.2);
+      color: var(--olive);
+      transition: all 0.3s ease;
+    }
+    .info-row:hover .info-icon {
+      background: var(--olive); color: var(--cream);
+    }
+    .info-label { font-size: 11px; font-weight: 600; color: var(--sage); letter-spacing: 0.05em; }
+    .info-value { font-size: 14px; font-weight: 600; color: var(--olive); margin-top: 2px; word-break: break-word; }
+
+    .close-btn {
+      position: absolute; top: 16px; right: 16px;
+      display: flex; align-items: center; justify-content: center;
+      height: 32px; width: 32px; border-radius: 12px;
+      background: rgba(246, 240, 215, 0.2);
+      color: var(--cream); border: none; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .close-btn:hover { background: rgba(246, 240, 215, 0.3); }
+
+    .tag-pill {
+      display: inline-flex; align-items: center;
+      border-radius: 999px; padding: 4px 12px;
+      font-size: 12px; font-weight: 500; color: var(--olive);
+    }
+
+    .hidden { display: none !important; }
+
+    .page-exit-backward { animation: slideOutRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+    .page-enter { animation: pageEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+    @media (max-width: 639px) { .hide-mobile { display: none; } }
+  </style>
+</head>
+<body>
+  <div id="profiles-page" class="page-enter">
+    <div style="min-height:100vh; position:relative; background:linear-gradient(180deg, #F6F0D7 0%, #ede7c8 100%);">
+
+      <!-- Background -->
+      <div style="position:fixed; inset:0; overflow:hidden; pointer-events:none;">
+        <div class="blob-1" style="position:absolute; top:80px; right:-128px; width:320px; height:320px; background:#C5D89D; opacity:0.15;"></div>
+        <div class="blob-3" style="position:absolute; bottom:-80px; left:80px; width:288px; height:288px; background:#9CAB84; opacity:0.1;"></div>
+      </div>
+      <div class="dot-pattern"></div>
+
+      <!-- Header -->
+      <header class="app-header glass">
+        <div class="header-inner">
+          <div style="display:flex; align-items:center; gap:16px;">
+            <button onclick="goBack()" class="back-btn genz-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+              Back
+            </button>
+            <div class="hide-mobile">
+              <h1 id="profiles-title" style="font-size:20px; font-weight:700; letter-spacing:-0.3px; color:#89986D;"></h1>
+              <p style="font-size:12px; color:#9CAB84;">Click a profile to view details</p>
+            </div>
+          </div>
+          <div class="pill-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span id="profiles-count"></span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Profiles grid -->
+      <div style="max-width:1152px; margin:0 auto; padding:40px 24px;">
+        <div id="profiles-grid" class="profiles-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL ===== -->
+  <div id="modal-backdrop" class="modal-backdrop hidden" onclick="closeModal()"></div>
+  <div id="modal-container" class="modal-container hidden" onclick="closeModal()">
+    <div class="modal-card" onclick="event.stopPropagation()" id="modal-card">
+      <div class="modal-header">
+        <button class="close-btn" onclick="closeModal()" aria-label="Close modal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="height:8px; width:8px; border-radius:999px; background:#C5D89D; animation: softPulse 2s ease-in-out infinite;"></div>
+          <span style="font-size:12px; font-weight:500; color:rgba(246, 240, 215, 0.8); letter-spacing:0.05em;">PROFILE DETAILS</span>
+        </div>
+      </div>
+      <div class="modal-avatar">
+        <div class="modal-avatar-inner" id="modal-avatar-text"></div>
+      </div>
+      <div style="margin-top:16px; text-align:center; padding:0 32px;">
+        <h2 id="modal-name" style="font-size:20px; font-weight:700; color:#89986D;"></h2>
+        <div id="modal-tags" style="margin-top:8px; display:flex; align-items:center; justify-content:center; gap:8px;"></div>
+      </div>
+      <div style="padding:20px 24px 24px 24px;">
+        <div id="modal-info" style="display:flex; flex-direction:column; gap:10px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== DATA =====
+    const cardLabels = [
+      "Office 1", "Office 2", "Office 3",
+      "Office 4", "Office 5", "Office 6",
+      "Office 7", "Office 8", "Office 9",
+      "Office 10", "Office 11", "Office 12",
+      "Office 13"
+    ];
+
+    const firstNames = ["Maria","Jose","Juan","Ana","Carlos","Sofia","Miguel","Lucia","Rafael","Isabella","Gabriel","Carmen","Diego","Elena","Marco","Rosa","Pedro","Clara","Luis","Victoria"];
+    const lastNames = ["Santos","Reyes","Cruz","Garcia","Torres","Flores","Rivera","Morales","Ramos","Diaz","Lopez","Mendoza","Castillo","Aquino","Navarro","Bautista","Villanueva","Dela Cruz","Fernandez","Santiago"];
+    const streets = ["Cabacaraan","Cabaritan","Flores","Guiset Norte","Lapalo","Nagsaag","Narra","San Bonifacio","San Juan","San Roque","San Vicente","Santo Domingo"];
+    const cities = ["San Manuel, Pangasinan"];
+
+    const cardIndex = parseInt(sessionStorage.getItem("selectedCard") || "0");
+
+    function generateProfiles(idx) {
+      const count = idx === 12 ? 8 : 15;
+      const profiles = [];
+      for (let i = 0; i < count; i++) {
+        const fn = firstNames[(idx * 3 + i) % firstNames.length];
+        const ln = lastNames[(idx * 5 + i * 2) % lastNames.length];
+        const sex = i % 2 === 0 ? "Female" : "Male";
+        const baseAge = idx === 12 ? 30 + (i % 20) : 12 + Math.floor(idx / 3);
+        const by = 2026 - baseAge;
+        const bm = ((i * 3 + 1) % 12) + 1;
+        const bd = ((i * 7 + 5) % 28) + 1;
+        profiles.push({
+          id: i, name: fn + " " + ln, age: baseAge, sex: sex,
+          address: (100 + i * 12) + " " + streets[i % streets.length] + ", " + cities[i % cities.length],
+          contact: "09" + (170 + idx) + String(1000000 + i * 12345).slice(0, 7),
+          email: fn.toLowerCase() + "." + ln.toLowerCase().replace(/ /g, '') + "@email.com",
+          guardian: firstNames[(i + 5) % firstNames.length] + " " + lastNames[(i + 3) % lastNames.length],
+          birthday: String(bm).padStart(2, "0") + "/" + String(bd).padStart(2, "0") + "/" + by
+        });
+      }
+      return profiles;
+    }
+
+    function getInitials(name) {
+      return name.split(" ").map(n => n[0]).join("");
+    }
+
+    // ===== BUILD PROFILES =====
+    function buildProfiles() {
+      const profiles = generateProfiles(cardIndex);
+      document.getElementById("profiles-title").textContent = cardLabels[cardIndex] || "Unknown";
+      document.getElementById("profiles-count").textContent = profiles.length + " Profiles";
+
+      const grid = document.getElementById("profiles-grid");
+      grid.innerHTML = "";
+      profiles.forEach((p, i) => {
+        const card = document.createElement("button");
+        card.className = "genz-card";
+        card.style.cssText = "position:relative; display:flex; flex-direction:column; align-items:center; gap:12px; border-radius:16px; background:rgba(246, 240, 215, 0.7); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); padding:20px; border:1px solid rgba(197, 216, 157, 0.2); overflow:hidden; opacity:0; animation: staggerIn 0.45s " + (0.04 * i + 0.1) + "s cubic-bezier(0.22, 1, 0.36, 1) forwards;";
+        card.onclick = () => openModal(p);
+        card.innerHTML = `
+          <div class="profile-hover-gradient"></div>
+          <div style="position:relative; z-index:1;">
+            <div class="profile-avatar">
+              <span>${getInitials(p.name)}</span>
+            </div>
+            <div class="status-dot"></div>
+          </div>
+          <div style="position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:2px; margin-top:4px;">
+            <span style="font-size:14px; font-weight:600; color:#89986D; text-align:center; line-height:1.3;">${p.name}</span>
+            <span style="font-size:11px; color:rgba(156, 171, 132, 0.7); font-weight:500;">${p.sex}</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // ===== MODAL =====
+    function openModal(profile) {
+      document.getElementById("modal-avatar-text").textContent = getInitials(profile.name);
+      document.getElementById("modal-name").textContent = profile.name;
+
+      document.getElementById("modal-tags").innerHTML = `
+        <span class="tag-pill" style="background:rgba(197, 216, 157, 0.2);">${profile.sex}</span>
+        <span class="tag-pill" style="background:rgba(156, 171, 132, 0.15);">${profile.age} years old</span>
+      `;
+
+      const iconSvgs = {
+        calendar: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>',
+        pin: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
+        users: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+        phone: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+        mail: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>'
+      };
+
+      const infoData = [
+        { icon: iconSvgs.calendar, label: "BIRTHDAY", value: profile.birthday },
+        { icon: iconSvgs.pin, label: "ADDRESS", value: profile.address },
+        { icon: iconSvgs.users, label: "GUARDIAN", value: profile.guardian },
+        { icon: iconSvgs.phone, label: "CONTACT", value: profile.contact },
+        { icon: iconSvgs.mail, label: "EMAIL", value: profile.email },
+      ];
+
+      document.getElementById("modal-info").innerHTML = infoData.map(d => `
+        <div class="info-row">
+          <div class="info-icon">${d.icon}</div>
+          <div style="min-width:0; flex:1;">
+            <p class="info-label">${d.label}</p>
+            <p class="info-value">${d.value}</p>
+          </div>
+        </div>
+      `).join("");
+
+      const backdrop = document.getElementById("modal-backdrop");
+      const container = document.getElementById("modal-container");
+      const card = document.getElementById("modal-card");
+
+      backdrop.classList.remove("hidden");
+      container.classList.remove("hidden");
+      backdrop.style.animation = "backdropIn 0.3s ease forwards";
+      card.style.animation = "modalIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards";
+    }
+
+    function closeModal() {
+      const backdrop = document.getElementById("modal-backdrop");
+      const container = document.getElementById("modal-container");
+      const card = document.getElementById("modal-card");
+
+      backdrop.style.animation = "backdropOut 0.25s ease forwards";
+      card.style.animation = "modalOut 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards";
+
+      setTimeout(() => {
+        backdrop.classList.add("hidden");
+        container.classList.add("hidden");
+        backdrop.style.animation = "";
+        card.style.animation = "";
+      }, 280);
+    }
+
+    // ===== NAVIGATION =====
+    function goBack() {
+      document.getElementById("profiles-page").classList.add("page-exit-backward");
+      setTimeout(() => {
+        window.location.href = "dashboard.html";
+      }, 350);
+    }
+
+    // Build on load
+    buildProfiles();
+  </script>
+</body>
+</html>

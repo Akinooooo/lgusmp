@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMP Portal - Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #F6F0D7;
+      --cream-dark: #ede7c8;
+      --sage-light: #C5D89D;
+      --sage: #9CAB84;
+      --olive: #89986D;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--olive);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    @keyframes softPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(1.05); filter: blur(12px); }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .animate-float { animation: float 6s ease-in-out infinite; }
+
+    /* ===== BLOB SHAPES ===== */
+    .blob-1 { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; animation: softPulse 6s ease-in-out infinite; }
+    .blob-2 { border-radius: 40% 60% 70% 30% / 40% 70% 30% 60%; animation: softPulse 8s ease-in-out infinite; }
+    .blob-3 { border-radius: 30% 70% 40% 60% / 50% 40% 60% 50%; animation: softPulse 7s ease-in-out infinite; }
+
+    /* ===== DOT PATTERN ===== */
+    .dot-pattern {
+      position: fixed; inset: 0;
+      opacity: 0.025; pointer-events: none;
+      background-image: radial-gradient(circle, #89986D 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    /* ===== BUTTONS ===== */
+    .genz-btn {
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      border: none;
+    }
+    .genz-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -8px rgba(137, 152, 109, 0.3);
+    }
+    .genz-btn:active {
+      transform: translateY(0px) scale(0.98);
+    }
+
+    /* ===== INPUTS ===== */
+    .input-field {
+      width: 100%;
+      border-radius: 16px;
+      background: var(--cream);
+      padding: 14px 20px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--olive);
+      border: none;
+      outline: none;
+      box-shadow: inset 0 0 0 1px rgba(197, 216, 157, 0.3);
+      transition: all 0.3s ease;
+    }
+    .input-field::placeholder { color: rgba(156, 171, 132, 0.5); }
+    .input-field:focus { box-shadow: inset 0 0 0 2px var(--sage); }
+
+    .hidden { display: none !important; }
+
+    .login-spinner {
+      display: inline-block; height: 16px; width: 16px;
+      border: 2px solid rgba(246, 240, 215, 0.3);
+      border-top-color: var(--cream);
+      border-radius: 999px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .page-exit { animation: fadeOut 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+  </style>
+</head>
+<body>
+  <div id="login-page">
+    <div style="position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; background:linear-gradient(135deg, #F6F0D7 0%, #ede7c8 50%, #F6F0D7 100%);">
+
+      <!-- Blobs -->
+      <div style="position:absolute; inset:0; overflow:hidden; pointer-events:none;">
+        <div class="blob-1" style="position:absolute; top:-128px; right:-128px; width:384px; height:384px; background:#C5D89D; opacity:0.3;"></div>
+        <div class="blob-2" style="position:absolute; bottom:-160px; left:-160px; width:500px; height:500px; background:#9CAB84; opacity:0.2;"></div>
+        <div class="blob-3" style="position:absolute; top:25%; left:-80px; width:240px; height:240px; background:#C5D89D; opacity:0.2;"></div>
+      </div>
+
+      <!-- Dots -->
+      <div class="dot-pattern"></div>
+
+      <div style="position:relative; width:100%; max-width:420px; padding:0 24px; animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1);">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:32px;">
+
+          <!-- Logo -->
+          <div class="animate-float">
+            <div style="border-radius:24px; background:#F6F0D7; padding:16px; box-shadow: 0 10px 25px -5px rgba(156, 171, 132, 0.1); border:1px solid rgba(197, 216, 157, 0.3);">
+              <img src="smplogo.png" alt="SMP Logo" style="height:140px; width:auto; object-fit:contain;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=&quot;height:80px;width:80px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#89986D;&quot;>SMP</div>';" />
+            </div>
+          </div>
+
+          <!-- Welcome -->
+          <div style="text-align:center; animation: fadeInUp 0.8s 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;">
+            <h1 style="font-size:30px; font-weight:700; letter-spacing:-0.5px; color:#89986D;">Welcome back</h1>
+            <p style="margin-top:8px; font-size:14px; color:#9CAB84;">Sign in to continue to your portal</p>
+          </div>
+
+          <!-- Form Card -->
+          <div style="width:100%; border-radius:24px; background:rgba(246, 240, 215, 0.8); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); padding:32px; box-shadow: 0 20px 40px -12px rgba(156, 171, 132, 0.08); border:1px solid rgba(197, 216, 157, 0.2); animation: fadeInUp 0.8s 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;">
+            <form id="login-form" style="display:flex; flex-direction:column; gap:20px;" onsubmit="handleLogin(event)">
+
+              <!-- Username -->
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <label for="username" style="font-size:12px; font-weight:600; letter-spacing:0.05em; color:#89986D; padding-left:4px;">USERNAME</label>
+                <input id="username" type="text" placeholder="Enter your username" class="input-field" />
+              </div>
+
+              <!-- Password -->
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <label for="password" style="font-size:12px; font-weight:600; letter-spacing:0.05em; color:#89986D; padding-left:4px;">PASSWORD</label>
+                <div style="position:relative;">
+                  <input id="password" type="password" placeholder="Enter your password" class="input-field" style="padding-right:48px;" />
+                  <button type="button" onclick="togglePassword()" style="position:absolute; right:16px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#9CAB84; transition:color 0.2s;" aria-label="Toggle password visibility">
+                    <svg id="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg id="eye-off-icon" class="hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Submit -->
+              <button id="login-btn" type="submit" class="genz-btn" style="margin-top:12px; display:flex; align-items:center; justify-content:center; gap:8px; width:100%; border-radius:16px; background:#89986D; padding:16px 24px; font-size:14px; font-weight:600; color:#F6F0D7; letter-spacing:0.02em;">
+                <span id="login-btn-text">Sign In</span>
+                <svg id="login-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                <span id="login-spinner" class="hidden" style="display:none;"><span class="login-spinner"></span></span>
+                <span id="login-loading-text" class="hidden">Signing in...</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Footer -->
+          <p style="font-size:12px; color:rgba(156, 171, 132, 0.7); animation: fadeInUp 0.8s 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;">SMP Management System</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function togglePassword() {
+      const pw = document.getElementById("password");
+      const eyeOn = document.getElementById("eye-icon");
+      const eyeOff = document.getElementById("eye-off-icon");
+      if (pw.type === "password") {
+        pw.type = "text";
+        eyeOn.classList.add("hidden");
+        eyeOff.classList.remove("hidden");
+        eyeOff.style.display = "";
+      } else {
+        pw.type = "password";
+        eyeOff.classList.add("hidden");
+        eyeOn.classList.remove("hidden");
+      }
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const btn = document.getElementById("login-btn");
+      const txt = document.getElementById("login-btn-text");
+      const arrow = document.getElementById("login-arrow");
+      const spinner = document.getElementById("login-spinner");
+      const loadTxt = document.getElementById("login-loading-text");
+
+      btn.disabled = true;
+      btn.style.opacity = "0.7";
+      txt.classList.add("hidden");
+      arrow.classList.add("hidden");
+      spinner.classList.remove("hidden");
+      spinner.style.display = "";
+      loadTxt.classList.remove("hidden");
+      loadTxt.style.display = "";
+
+      setTimeout(() => {
+        document.getElementById("login-page").classList.add("page-exit");
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 600);
+      }, 900);
+    }
+  </script>
+</body>
+</html>
